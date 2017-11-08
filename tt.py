@@ -146,7 +146,7 @@ ch.setEngaged(1)
 
 
 '''for i in range(-10000, -500001, -10000) :'''
-ch.setTargetPosition(-500000)
+'''ch.setTargetPosition(-500000)'''
 run(sys.argv[1])
 time.sleep(60)
 
@@ -161,7 +161,7 @@ ch.setTargetPosition(-300000)
 time.sleep(50)'''
 
 print("Setting Position to 0 for 5 seconds...\n")
-ch.setTargetPosition(0)
+'''ch.setTargetPosition(0)'''
 time.sleep(30)
 
 try:
