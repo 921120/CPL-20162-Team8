@@ -155,6 +155,7 @@ print("Setting Position to 0 for 5 seconds...\n")
 ch.setTargetPosition(0)
 outfile = open('input.txt', 'w')
 outfile.write(list)
+outfile.close()
 time.sleep(60)
 
 try:
