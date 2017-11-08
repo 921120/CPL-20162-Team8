@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 '''Records measurments to a given file. Usage example:
-
 $ ./record_measurments.py out.txt'''
 import sys
-import time 
+import time
 from rplidar import RPLidar
 from rplidar import RPLidarException
 from Phidget22.Devices.Stepper import *
@@ -12,6 +11,8 @@ from Phidget22.Phidget import *
 from Phidget22.Net import *
 
 PORT_NAME = '/dev/ttyUSB0'
+
+list = []
 
 def StepperAttached(e):
     try:
@@ -33,8 +34,9 @@ def StepperAttached(e):
         print("Phidget Exception %i: %s" % (e.code, e.details))
         print("Press Enter to Exit...\n")
         readin = sys.stdin.read(1)
-        exit(1)   
-    
+        exit(1)
+
+
 def StepperDetached(e):
     detached = e
     try:
@@ -43,28 +45,28 @@ def StepperDetached(e):
         print("Phidget Exception %i: %s" % (e.code, e.details))
         print("Press Enter to Exit...\n")
         readin = sys.stdin.read(1)
-        exit(1)   
+        exit(1)
+
 
 def ErrorEvent(e, eCode, description):
     print("Error %i : %s" % (eCode, description))
+
 
 def PositionChangeHandler(e, position):
     print("Position: %f" % position)
     return position
 
 
-
-def run(pwm):
+def run(self,n=320):
     '''Main function'''
     lidar = RPLidar(PORT_NAME)
-    lidar.set_pwm(int(pwm))
-    outfile = open(str(pwm) + '.txt', 'w')
+    lidar.set_pwm(n)
     cnt = 0
     try:
         print('Recording measurments... Press Crl+C to stop.')
         for measurment in lidar.iter_measurments():
             line = '\t'.join(str(v) for v in measurment)
-            outfile.write(line +'\t' + str(ch.getPosition()) + '\n')
+            list.append(line + '\t' + str(ch.getPosition())+ '\n')
             cnt += 1
             if lidar.motor:
                 ln = 'Spinning %d'
@@ -93,7 +95,7 @@ except RuntimeError as e:
     print("Press Enter to Exit...\n")
     readin = sys.stdin.read(1)
     exit(1)
-    
+
 try:
     ch.setOnAttachHandler(StepperAttached)
     ch.setOnDetachHandler(StepperDetached)
@@ -109,7 +111,7 @@ try:
     #
     # The default is any device.
     #
-    # ch.setDeviceSerialNumber(<YOUR DEVICE SERIAL NUMBER>) 
+    # ch.setDeviceSerialNumber(<YOUR DEVICE SERIAL NUMBER>)
 
     # For VINT devices, this specifies the port the VINT device must be plugged into.
     #
@@ -144,25 +146,16 @@ except PhidgetException as e:
 print("Engaging the motor\n")
 ch.setEngaged(1)
 
-
-'''for i in range(-10000, -500001, -10000) :'''
-'''ch.setTargetPosition(-500000)'''
-run(sys.argv[1])
+run()
+print("Setting Position to -600000 for 5 seconds...\n")
+ch.setTargetPosition(-600000)
 time.sleep(60)
 
-print("Setting Position to -500000 for 5 seconds...\n")
-'''ch.setTargetPosition(500000)
-run(sys.argv[1])
-time.sleep(45)'''
-'''run(sys.argv[1])'''
-
-'''print("Setting Position to -15000 for 5 seconds...\n")
-ch.setTargetPosition(-300000)
-time.sleep(50)'''
-
 print("Setting Position to 0 for 5 seconds...\n")
-'''ch.setTargetPosition(0)'''
-time.sleep(30)
+ch.setTargetPosition(0)
+outfile = open('input.txt', 'w')
+outfile.write(list)
+time.sleep(60)
 
 try:
     ch.close()
@@ -170,6 +163,6 @@ except PhidgetException as e:
     print("Phidget Exception %i: %s" % (e.code, e.details))
     print("Press Enter to Exit...\n")
     readin = sys.stdin.read(1)
-    exit(1) 
+    exit(1)
 print("Closed Stepper device")
 exit(0)
